@@ -19,7 +19,7 @@ def make_graph_from_solved(solved, all_problems):
         label = '%s: %d' % (title, point_value)
 
         if pid not in G.node.keys():
-            print 'adding:', pid
+            # print 'adding:', pid
             G.add_node(pid, label=label, point_value=point_value)
 
         for unlock in unlocks:
@@ -27,7 +27,7 @@ def make_graph_from_solved(solved, all_problems):
             title, point_value, unlocks = get_problem_info(unlock, all_problems)
             label = '%s: %d' % (title, point_value)
             if unlock not in G.node.keys():
-                print 'adding:', unlock
+                # print 'adding:', unlock
                 G.add_node(unlock, label=label, point_value=point_value)
             G.add_edge(pid, unlock)
 

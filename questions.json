@@ -1,35 +1,19 @@
 {
 	"problems": {
-		"5": {
-			"prob_id": 5,
-			"title": "Backdoor",
-			"question": "What is the name of the suspicious executable running on computer?",
-			"answer": "csrss_profiler.exe",
-			"point_value": 50,
-			"unlocks": []
-		},
 		"1": {
 			"prob_id": 1,
 			"title": "Owner",
 			"question": "Who is the owner of the phone?",
 			"answer": "Marc Rogers",
-			"point_value": 10,
+			"point_value": 50,
 			"unlocks": [2]
-		},
-		"4": {
-			"prob_id": 4,
-			"title": "Hidden Steganography",
-			"question": "What is the hidden message?",
-			"answer": "Meet me at the docks.",
-			"point_value": 40,
-			"unlocks": []
 		},
 		"2": {
 			"prob_id": 2,
 			"title": "Metadata",
 			"question": "What phone was used to take the photo?",
 			"answer": "LG G4",
-			"point_value": 20,
+			"point_value": 200,
 			"unlocks": [3, 4]
 		},
 		"3": {
@@ -37,8 +21,24 @@
 			"title": "Memory Forensics",
 			"question": "What popular software is used to analyze memory dumps?",
 			"answer": "Volatility",
-			"point_value": 30,
+			"point_value": 300,
 			"unlocks": [5]
+		},
+		"4": {
+			"prob_id": 4,
+			"title": "Hidden Steganography",
+			"question": "What is the hidden message?",
+			"answer": "Meet me at the docks.",
+			"point_value": 400,
+			"unlocks": []
+		},
+		"5": {
+			"prob_id": 5,
+			"title": "Backdoor",
+			"question": "What is the name of the suspicious executable running on computer?",
+			"answer": "csrss_profiler.exe",
+			"point_value": 500,
+			"unlocks": []
 		}
 	}
 }

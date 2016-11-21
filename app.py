@@ -72,6 +72,8 @@ def scatter_nodes(G, opacity=1):
 
     marker = Marker(
         showscale = True,
+        cmin = 10,
+        cmax = 600,
         colorscale = colorscheme,
         color = [],
         size = 32,
@@ -151,26 +153,67 @@ def show_map():
                            username=session.get('team_id'))
 
 
+def validate_answer(given, correct):
+    return given == correct
+
+
 # attempt to solve a question
 @app.route('/solve', methods=['POST'])
 def solve():
     if not session.get('logged_in'):
-        return 'bye'
+        return abort(401)
 
     if request.method == 'POST':
-        prob_id = request.form['prob_id']
-        answer = request.form['answer']
-        team_id = request.form['team_id']
+        prob_id = str(request.form['prob_id'])
+        answer = str(request.form['answer'])
 
-        # edit the terms of what is valid later on
-        is_valid = prob_id != '' and answer != '' and team_id != ''
+        # check if team has access to question:
+        team_id = session.get('team_id')
+
+        Session = sessionmaker(bind=engine)
+        s = Session()
+        query = s.query(User).filter(User.username.in_([team_id]))
+        result = query.first()
+
+        if not result:
+            return abort(401)
+
+        solved = []
+        if result.solved != '':
+            for problem_id in result.solved.split(','):
+                solved.append(str(problem_id))
+
+        visible = get_visible(solved, problems)
+        # end check
+
+        # TODO: edit the terms of what is valid later on
+        print 'REQUEST:', prob_id, answer, team_id
+
+        is_valid = answer != '' and prob_id in problems.keys()
 
         if not is_valid:
-            return 'invalid'
+            return abort(400)
 
-        print prob_id, answer, team_id
+        is_allowed = prob_id in visible
 
-        return 'success'
+        if not is_allowed:
+            return abort(403)
+
+        already_solved = prob_id in solved
+
+        if already_solved:
+            return abort(400)
+
+        correct_answer = problems[prob_id]['answer']
+
+        print 'correct answer:', correct_answer
+
+        if validate_answer(answer, correct_answer):
+            result.solved = ','.join(solved + [str(prob_id)])
+            s.commit()
+            return 'right'
+
+        return 'wrong'
     else:
         print 'ERROR! /solve only accepts POST requests'
 
@@ -186,7 +229,7 @@ def get_question():
 
         print 'question request:', prob_id
 
-        # TODO: Add check if team_id has access to question
+        # check if team has access to question:
         team_id = session.get('team_id')
 
         Session = sessionmaker(bind=engine)
@@ -204,6 +247,7 @@ def get_question():
 
         visible = get_visible(solved, problems)
         print 'visible:', visible
+        # end check
 
         if prob_id not in problems.keys():
             return abort(404)
