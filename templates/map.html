@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>HSF Finals Challenge Map</title>
+
+  <!-- Latest compiled and minified CSS -->
+  <link rel="stylesheet" href="/static/css/bootstrap.min.css"> 
+
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- header -->
+    <div class="page-header">
+      <div class="btn-toolbar pull-right">
+        <form method="post" action="/logout">
+          <button type="submit" class="btn btn-danger">Logout</button>
+        </form>
+
+      </div> 
+      <h3 class="text-muted">HSF Finals Challenge Map</h3>
+    </div>
+
+    <!-- graph -->
+    {% for id in ids %}
+    <!--<h3>{{id}}</h3>-->
+    <div id="{{id}}"></div>
+    {% endfor %}
+
+    <!-- question modal -->
+    <div id="questionModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="questionModalLabel" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="questionModalTitle"></h4>
+          </div>
+
+          <div class="modal-body">
+            <p class="modal-question"></p>
+            <div class="form-group">
+              <input type="text" class="form-control" id="flag" placeholder="Flag" value="">
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-info btn-lg">Submit</button>
+          </div> 
+        </div>
+      </div>
+    </div>
+
+    <!-- D3.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+    <script type="text/javascript">
+      var graphs = {{graphJSON | safe}};
+      var ids = {{ids | safe}};
+      for(var i in graphs) {
+        Plotly.plot(ids[i],
+          graphs[i].data,
+          graphs[i].layout || {},
+          {scrollZoom: true,
+           showLink: false});
+      }
+
+      var map = document.getElementById('map0');
+
+      map.on('plotly_click', function(data) {
+        var problem_id = data.points[0].pointNumber + 1;
+
+        //TODO: FILL IN A REAL TEAM NAME
+        $.post('/question', {prob_id: problem_id, team_id: 'abcd'}, function(data, status) {
+          if(new String(data).valueOf() == new String('invalid').valueOf()) {
+            console.log('error');
+            return;
+          }
+          var resp_split = data.split('::');
+          var title = resp_split[0];
+          var question = resp_split[1];
+          var point_val = resp_split[2];
+
+          $('#questionModal .modal-title').html(title + ' (' + point_val + ')');
+          $('#questionModal .modal-question').html(question);
+          $('#questionModal').modal();
+        });
+
+      });
+
+    </script>
+
+    <hr>
+    <!-- footer -->
+    <footer class="dark-bg light-typo">
+      <p align="center">&copy; CSAW HSF 2016</p>
+    </footer>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.0.0/jquery.min.js" integrity="sha384-THPy051/pYDQGanwU6poAc/hOdQxjnOEXzbT+OuUAFqNqFjL+4IGLBgCJC3ZOShY" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.2.0/js/tether.min.js" integrity="sha384-Plbmg8JY28KFelvJVai01l8WyZzrYWG825m+cZ0eDDS1f7d/js6ikvy1+X+guPIB" crossorigin="anonymous"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+  </div> <!-- /container -->
+</body>
+
+</html>
