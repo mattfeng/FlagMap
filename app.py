@@ -16,9 +16,15 @@ from matplotlib import cm
 
 import os
 
+import hashlib
+
+from sqlalchemy.orm import sessionmaker
+from tabledef import *
+
 app = Flask(__name__)
 app.debug = True
 
+engine = create_engine('sqlite:///users.db', echo=True)
 
 # load problems (aka questions)
 problems = json.load(open('./questions.json'))['problems']
@@ -66,7 +72,7 @@ def scatter_nodes(G, opacity=1):
         showscale = True,
         colorscale = colorscheme,
         color = [],
-        size = 22,
+        size = 32,
         colorbar = dict(
             thickness = 30,
             title = 'Point Value',
@@ -108,7 +114,7 @@ def show_map():
     edge_trace = scatter_edges(G, pos)
 
     data = Data([edge_trace, node_trace])
-    layout = Layout(title = "HSF Flag Map",
+    layout = Layout(title = "HSF Finals Challenge Map",
                     xaxis = XAxis(showgrid=False, zeroline=False, showticklabels=False),
                     yaxis = YAxis(showgrid=False, zeroline=False, showticklabels=False),
                     showlegend = False,
@@ -195,16 +201,22 @@ def reload_questions():
 
 @app.route('/login', methods=['POST'])
 def login():
-    username = request.form['username']
-    password = request.form['password']
+    POST_USERNAME = str(request.form['username'])
+    POST_PASSWORD = str(request.form['password'])
 
-    print username, password
+    Session = sessionmaker(bind=engine)
+    s = Session()
+    query = s.query(User).filter(User.username.in_([POST_USERNAME]))
+    result = query.first()
 
-    if username == 'admin' and password == 'thepassword':
-        session['logged_in'] = True
-        session['team_id'] = username
-    else:
-        flash('Login failed.')
+    if result:
+        salt = result.salt
+        HASHED = hashlib.sha512(POST_PASSWORD + salt).hexdigest()
+        print result.username
+        print result.password
+        print result.salt
+        if HASHED == result.password:
+            session['logged_in'] = True
 
     return home()
 
