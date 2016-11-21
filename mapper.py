@@ -34,6 +34,9 @@ def make_graph_from_solved(solved, all_problems):
     return G
 
 def get_visible(solved, all_problems):
+    if len(solved) == 0:
+        return ['1']
+        
     visible = []
     visible.extend(solved)
 
