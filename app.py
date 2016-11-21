@@ -124,7 +124,7 @@ def show_map():
     solved = []
     if result.solved != '':
         for problem_id in result.solved.split(','):
-            solved.append(problem_id)
+            solved.append(int(problem_id))
 
     G = make_graph_from_solved(solved, problems)
 
@@ -179,18 +179,37 @@ def solve():
 def get_question():
 
     if not session.get('logged_in'):
-        return 'bye'
+        return abort(401)
 
     if request.method == 'POST':
         prob_id = request.form['prob_id']
-        team_id = request.form['team_id']
 
-        print 'question request:', prob_id, team_id
+        print 'question request:', prob_id
 
         # TODO: Add check if team_id has access to question
+        team_id = session.get('team_id')
+
+        Session = sessionmaker(bind=engine)
+        s = Session()
+        query = s.query(User).filter(User.username.in_([team_id]))
+        result = query.first()
+
+        if not result:
+            return abort(401)
+
+        solved = []
+        if result.solved != '':
+            for problem_id in result.solved.split(','):
+                solved.append(str(problem_id))
+
+        visible = get_visible(solved, problems)
+        print 'visible:', visible
 
         if prob_id not in problems.keys():
-            return 'invalid'
+            return abort(404)
+
+        if prob_id not in visible:
+            return abort(403)
 
         prob = problems[prob_id]
 

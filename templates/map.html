@@ -82,14 +82,8 @@
       map.on('plotly_click', function(data) {
         var problem_id = data.points[0].pointNumber + 1;
 
-        console.log(data);
-        console.log(problem_id);
+        $.post('/question', {prob_id: problem_id}, function(data, status) {
 
-        $.post('/question', {prob_id: problem_id, team_id: username}, function(data, status) {
-          if(new String(data).valueOf() == new String('invalid').valueOf()) {
-            console.log('error');
-            return;
-          }
           var resp_split = data.split('::');
           var title = resp_split[0];
           var question = resp_split[1];

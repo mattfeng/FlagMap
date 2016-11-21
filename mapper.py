@@ -33,6 +33,16 @@ def make_graph_from_solved(solved, all_problems):
 
     return G
 
+def get_visible(solved, all_problems):
+    visible = []
+    visible.extend(solved)
+
+    for pid in solved:
+        title, point_value, unlocks = get_problem_info(pid, all_problems)
+        visible.extend(unlocks)
+
+    return list(set([str(i) for i in visible]))
+
 if __name__ == '__main__':
     problems = json.load(open('./questions.json'))['problems']
     graph = make_graph_from_solved([1, 3], problems)
