@@ -17,12 +17,14 @@ class User(Base):
     username = Column(String)
     password = Column(String)
     salt = Column(String)
+    solved = Column(String)
  
-    def __init__(self, username, password):
+    def __init__(self, username, password, solved=''):
         self.username = username
         self.salt = self.gen_rand_salt()
         print 'Salt:', self.salt
         self.password = hashlib.sha512(password + self.salt).hexdigest()
+        self.solved = solved
 
     def gen_rand_salt(self):
         ret = ''

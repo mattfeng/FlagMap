@@ -24,11 +24,11 @@
 
       </div> 
       <h3 class="text-muted">HSF Finals Challenge Map</h3>
+      <h5 class="text-muted">Welcome, {{username}}</h3>
     </div>
 
     <!-- graph -->
     {% for id in ids %}
-    <!--<h3>{{id}}</h3>-->
     <div id="{{id}}"></div>
     {% endfor %}
 
@@ -67,6 +67,8 @@
     <script type="text/javascript">
       var graphs = {{graphJSON | safe}};
       var ids = {{ids | safe}};
+      var username = '{{ username }}';
+
       for(var i in graphs) {
         Plotly.plot(ids[i],
           graphs[i].data,
@@ -80,8 +82,10 @@
       map.on('plotly_click', function(data) {
         var problem_id = data.points[0].pointNumber + 1;
 
-        //TODO: FILL IN A REAL TEAM NAME
-        $.post('/question', {prob_id: problem_id, team_id: 'abcd'}, function(data, status) {
+        console.log(data);
+        console.log(problem_id);
+
+        $.post('/question', {prob_id: problem_id, team_id: username}, function(data, status) {
           if(new String(data).valueOf() == new String('invalid').valueOf()) {
             console.log('error');
             return;

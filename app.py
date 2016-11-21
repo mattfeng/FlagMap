@@ -21,6 +21,8 @@ import hashlib
 from sqlalchemy.orm import sessionmaker
 from tabledef import *
 
+from mapper import *
+
 app = Flask(__name__)
 app.debug = True
 
@@ -108,7 +110,23 @@ def show_map():
     if not session.get('logged_in'):
         return home()
 
-    G = nx.Graph(nx.read_gpickle('questions.gpickle'))
+    team_id = session.get('team_id')
+
+    Session = sessionmaker(bind=engine)
+    s = Session()
+    query = s.query(User).filter(User.username.in_([team_id]))
+    result = query.first()
+
+    if not result:
+        return home()
+
+    print result.solved
+    solved = []
+    if result.solved != '':
+        for problem_id in result.solved.split(','):
+            solved.append(problem_id)
+
+    G = make_graph_from_solved(solved, problems)
 
     node_trace, pos = scatter_nodes(G)
     edge_trace = scatter_edges(G, pos)
@@ -129,12 +147,16 @@ def show_map():
 
     return render_template('map.html',
                            ids=ids,
-                           graphJSON=graphJSON)
+                           graphJSON=graphJSON,
+                           username=session.get('team_id'))
 
 
 # attempt to solve a question
 @app.route('/solve', methods=['POST'])
 def solve():
+    if not session.get('logged_in'):
+        return 'bye'
+
     if request.method == 'POST':
         prob_id = request.form['prob_id']
         answer = request.form['answer']
@@ -152,10 +174,13 @@ def solve():
     else:
         print 'ERROR! /solve only accepts POST requests'
 
-
 # attempt to get a question
 @app.route('/question', methods=['POST'])
 def get_question():
+
+    if not session.get('logged_in'):
+        return 'bye'
+
     if request.method == 'POST':
         prob_id = request.form['prob_id']
         team_id = request.form['team_id']
@@ -170,8 +195,8 @@ def get_question():
         prob = problems[prob_id]
 
         return '%s::%s::%s' % (prob['title'],
-                                   prob['question'],
-                                   prob['point_value'])
+                               prob['question'],
+                               prob['point_value'])
     else:
         print 'ERROR! /question only accepts POST requests'
 
@@ -180,7 +205,6 @@ def get_question():
 def reload_questions():
     if request.method == 'GET':
 
-        # TODO: CHANGE REQUEST FORMS TO SESSION IDs
         if not session.get('logged_in'):
             return redirect(url_for('home'))
 
@@ -217,6 +241,7 @@ def login():
         print result.salt
         if HASHED == result.password:
             session['logged_in'] = True
+            session['team_id'] = POST_USERNAME
 
     return home()
 
@@ -231,6 +256,7 @@ def home():
 def logout():
     if session.get('logged_in'):
         session['logged_in'] = False
+        session['team_id'] = None
     return home()
 
 if __name__ == '__main__':

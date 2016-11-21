@@ -1,5 +1,13 @@
 {
 	"problems": {
+		"5": {
+			"prob_id": 5,
+			"title": "Backdoor",
+			"question": "What is the name of the suspicious executable running on computer?",
+			"answer": "csrss_profiler.exe",
+			"point_value": 50,
+			"unlocks": []
+		},
 		"1": {
 			"prob_id": 1,
 			"title": "Owner",
@@ -7,6 +15,14 @@
 			"answer": "Marc Rogers",
 			"point_value": 10,
 			"unlocks": [2]
+		},
+		"4": {
+			"prob_id": 4,
+			"title": "Hidden Steganography",
+			"question": "What is the hidden message?",
+			"answer": "Meet me at the docks.",
+			"point_value": 40,
+			"unlocks": []
 		},
 		"2": {
 			"prob_id": 2,
@@ -23,22 +39,6 @@
 			"answer": "Volatility",
 			"point_value": 30,
 			"unlocks": [5]
-		},
-		"4": {
-			"prob_id": 4,
-			"title": "Hidden Steganography",
-			"question": "What is the hidden message?",
-			"answer": "Meet me at the docks.",
-			"point_value": 40,
-			"unlocks": []
-		},
-		"5": {
-			"prob_id": 5,
-			"title": "Backdoor",
-			"question": "What is the name of the suspicious executable running on computer?",
-			"answer": "csrss_profiler.exe",
-			"point_value": 50,
-			"unlocks": []
 		}
 	}
 }
